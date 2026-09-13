@@ -8,6 +8,8 @@ export default function Settings() {
   const [whatsappAdminNumber, setWhatsappAdminNumber] = useState("");
   const [shippingFee, setShippingFee] = useState("0");
   const [currency, setCurrency] = useState("KES");
+  const [mpesaTillNumber, setMpesaTillNumber] = useState("");
+  const [mpesaTillName, setMpesaTillName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -20,6 +22,8 @@ export default function Settings() {
         setWhatsappAdminNumber(settings.whatsappAdminNumber);
         setShippingFee(String(settings.shippingFee));
         setCurrency(settings.currency);
+        setMpesaTillNumber(settings.mpesaTillNumber);
+        setMpesaTillName(settings.mpesaTillName);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -35,6 +39,8 @@ export default function Settings() {
         whatsappAdminNumber,
         shippingFee: Number(shippingFee),
         currency,
+        mpesaTillNumber,
+        mpesaTillName,
       });
       setMessage("Settings saved");
     } finally {
@@ -69,6 +75,30 @@ export default function Settings() {
         <div>
           <label className="mb-1 block text-xs text-brand-muted">Currency</label>
           <Input value={currency} onChange={(e) => setCurrency(e.target.value)} />
+        </div>
+
+        <div className="border-t border-brand-border pt-4">
+          <p className="mb-3 text-sm font-medium text-white">M-Pesa Buy Goods Till</p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">Till Number</label>
+              <Input
+                value={mpesaTillNumber}
+                onChange={(e) => setMpesaTillNumber(e.target.value)}
+                placeholder="e.g. 123456"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">Till Name</label>
+              <Input
+                value={mpesaTillName}
+                onChange={(e) => setMpesaTillName(e.target.value)}
+                placeholder="Business name shown on the till"
+              />
+            </div>
+          </div>
         </div>
 
         {message && <p className="text-sm text-white">{message}</p>}

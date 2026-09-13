@@ -5,7 +5,7 @@ import { requireAdmin } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", requireAdmin, asyncHandler(getSettings));
+router.get("/", asyncHandler(getSettings));
 router.put("/", requireAdmin, asyncHandler(updateSettings));
 
 export default router;

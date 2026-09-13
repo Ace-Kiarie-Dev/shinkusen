@@ -108,6 +108,8 @@ export interface Settings {
   shippingFee: number;
   currency: string;
   featuredProductId: string | null;
+  mpesaTillNumber: string;
+  mpesaTillName: string;
 }
 
 export interface ApiResponse<T> {

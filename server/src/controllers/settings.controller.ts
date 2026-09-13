@@ -23,6 +23,8 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
     shippingFee: number;
     currency: string;
     featuredProductId: string | null;
+    mpesaTillNumber: string;
+    mpesaTillName: string;
   }>;
 
   const settings = await getOrCreateSettings();
@@ -34,6 +36,8 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
   if (body.featuredProductId !== undefined) {
     settings.featuredProductId = body.featuredProductId as unknown as ISettings["featuredProductId"];
   }
+  if (body.mpesaTillNumber !== undefined) settings.mpesaTillNumber = body.mpesaTillNumber;
+  if (body.mpesaTillName !== undefined) settings.mpesaTillName = body.mpesaTillName;
 
   await settings.save();
 

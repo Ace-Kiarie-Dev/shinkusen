@@ -6,6 +6,8 @@ export interface ISettings extends Document {
   shippingFee: number;
   currency: string;
   featuredProductId: Types.ObjectId | null;
+  mpesaTillNumber: string;
+  mpesaTillName: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +19,8 @@ const settingsSchema = new Schema<ISettings>(
     shippingFee: { type: Number, required: true, default: 0 },
     currency: { type: String, required: true, default: "KES" },
     featuredProductId: { type: Schema.Types.ObjectId, ref: "Product", default: null },
+    mpesaTillNumber: { type: String, required: true, default: "" },
+    mpesaTillName: { type: String, required: true, default: "" },
   },
   { timestamps: true },
 );
