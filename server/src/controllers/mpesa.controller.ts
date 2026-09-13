@@ -2,6 +2,11 @@ import type { Request, Response } from "express";
 import Order from "../models/Order";
 import Product from "../models/Product";
 import { generateReceipt } from "../services/receipt.service";
+import {
+  notifyAdminLowStock,
+  notifyAdminPaidOrder,
+  notifyCustomerOrderConfirmed,
+} from "../services/whatsapp.service";
 
 interface StkCallbackItem {
   Name: string;
@@ -53,7 +58,15 @@ export async function mpesaCallback(req: Request, res: Response): Promise<void> 
     await order.save();
 
     for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.qty } });
+      const updatedProduct = await Product.findByIdAndUpdate(
+        item.productId,
+        { $inc: { stock: -item.qty } },
+        { new: true },
+      );
+
+      if (updatedProduct && updatedProduct.stock <= updatedProduct.lowStockThreshold) {
+        await notifyAdminLowStock(updatedProduct);
+      }
     }
 
     try {
@@ -63,6 +76,11 @@ export async function mpesaCallback(req: Request, res: Response): Promise<void> 
     } catch (err) {
       console.error(`Receipt generation failed for order ${order.receiptNumber}:`, err);
     }
+
+    const adminNotified = await notifyAdminPaidOrder(order);
+    const customerNotified = await notifyCustomerOrderConfirmed(order);
+    order.whatsappSent = adminNotified && customerNotified;
+    await order.save();
   } else {
     order.paymentStatus = "failed";
     await order.save();

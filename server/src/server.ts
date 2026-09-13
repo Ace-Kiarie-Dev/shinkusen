@@ -13,6 +13,8 @@ import uploadRoutes from "./routes/upload.routes";
 import orderRoutes from "./routes/order.routes";
 import mpesaRoutes from "./routes/mpesa.routes";
 import settingsRoutes from "./routes/settings.routes";
+import customOrderRoutes from "./routes/customOrder.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -37,6 +39,8 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/custom-orders", customOrderRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
