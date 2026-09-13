@@ -33,9 +33,14 @@ export default function ProductDetail() {
         setProduct(p);
         setSize(p.sizes[0] ?? "");
         setColour(p.colours[0]?.name ?? "");
+        document.title = `${p.title} | SHINKUSEN`;
       })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
+
+    return () => {
+      document.title = "SHINKUSEN | Faith Meets Streetwear";
+    };
   }, [slug]);
 
   if (loading) {

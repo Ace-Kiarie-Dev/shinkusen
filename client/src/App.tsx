@@ -11,6 +11,8 @@ import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import OrderSuccess from "@/pages/OrderSuccess";
 import TrackOrder from "@/pages/TrackOrder";
+import Customize from "@/pages/Customize";
+import NotFound from "@/pages/NotFound";
 import Login from "@/pages/admin/Login";
 import Dashboard from "@/pages/admin/Dashboard";
 import Products from "@/pages/admin/Products";
@@ -32,6 +34,8 @@ function App() {
             <Route path="checkout" element={<Checkout />} />
             <Route path="order-success/:receiptNumber" element={<OrderSuccess />} />
             <Route path="track" element={<TrackOrder />} />
+            <Route path="customize" element={<Customize />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           <Route path="admin/login" element={<Login />} />
