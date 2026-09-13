@@ -10,6 +10,9 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import uploadRoutes from "./routes/upload.routes";
+import orderRoutes from "./routes/order.routes";
+import mpesaRoutes from "./routes/mpesa.routes";
+import settingsRoutes from "./routes/settings.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -31,6 +34,9 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/mpesa", mpesaRoutes);
+app.use("/api/settings", settingsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

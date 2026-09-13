@@ -33,6 +33,7 @@ export interface IOrder extends Document {
   orderStatus: OrderStatus;
   receiptUrl: string | null;
   whatsappSent: boolean;
+  mpesaCheckoutRequestId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -81,6 +82,7 @@ const orderSchema = new Schema<IOrder>(
     },
     receiptUrl: { type: String, default: null },
     whatsappSent: { type: Boolean, default: false },
+    mpesaCheckoutRequestId: { type: String, default: null, index: true },
   },
   { timestamps: true },
 );
