@@ -17,7 +17,11 @@ export async function markOrderPaid(order: IOrder): Promise<IOrder> {
     );
 
     if (updatedProduct && updatedProduct.stock <= updatedProduct.lowStockThreshold) {
-      await notifyAdminLowStock(updatedProduct);
+      try {
+        await notifyAdminLowStock(updatedProduct);
+      } catch (err) {
+        console.error(`Low stock WhatsApp alert failed for ${updatedProduct.title}:`, err);
+      }
     }
   }
 
@@ -30,8 +34,12 @@ export async function markOrderPaid(order: IOrder): Promise<IOrder> {
     }
   }
 
-  const customerNotified = await notifyCustomerOrderConfirmed(order);
-  order.whatsappSent = customerNotified;
+  try {
+    order.whatsappSent = await notifyCustomerOrderConfirmed(order);
+  } catch (err) {
+    console.error(`Customer WhatsApp confirmation failed for order ${order.receiptNumber}:`, err);
+    order.whatsappSent = false;
+  }
 
   await order.save();
 
