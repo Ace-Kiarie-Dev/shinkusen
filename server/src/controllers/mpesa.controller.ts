@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import Order from "../models/Order";
 import Product from "../models/Product";
+import { generateReceipt } from "../services/receipt.service";
 
 interface StkCallbackItem {
   Name: string;
@@ -53,6 +54,14 @@ export async function mpesaCallback(req: Request, res: Response): Promise<void> 
 
     for (const item of order.items) {
       await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.qty } });
+    }
+
+    try {
+      const receipt = await generateReceipt(order);
+      order.receiptUrl = receipt.url;
+      await order.save();
+    } catch (err) {
+      console.error(`Receipt generation failed for order ${order.receiptNumber}:`, err);
     }
   } else {
     order.paymentStatus = "failed";
