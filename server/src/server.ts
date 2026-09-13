@@ -7,6 +7,7 @@ dotenv.config();
 
 import { connectDB } from "./config/db";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -24,6 +25,8 @@ app.use(morgan("dev"));
 app.get("/api/health", (_req, res) => {
   res.json({ success: true, message: "SHINKUSEN API is running" });
 });
+
+app.use("/api/auth", authRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
