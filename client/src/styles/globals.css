@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --brand-crimson: #dc143c;
+  --brand-black: #0a0a0a;
+  --brand-surface: #111111;
+  --brand-border: #1e1e1e;
+  --brand-muted: #888888;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--brand-black);
+  color: #ffffff;
+  font-family: "DM Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+::selection {
+  background-color: var(--brand-crimson);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--brand-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-crimson);
+}
+
+/* Surgical claymorphism -- used only on ProductCard and the scroll-state navbar,
+   never applied site-wide. */
+.clay-surface {
+  background: linear-gradient(145deg, #131313, #0d0d0d);
+  border: 1px solid var(--brand-border);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 8px 24px -8px rgba(0, 0, 0, 0.7);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.clay-surface:hover {
+  transform: translateY(-4px);
+  border-color: rgba(220, 20, 60, 0.4);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 16px 40px -12px rgba(220, 20, 60, 0.45);
+}
+
+.glass-navbar {
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.glass-navbar.is-scrolled {
+  border-bottom-color: rgba(220, 20, 60, 0.35);
+  box-shadow: 0 4px 24px -8px rgba(220, 20, 60, 0.25);
+}
+
+.text-scripture {
+  font-style: italic;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--brand-muted);
+}
+
+.mono-ref {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.03em;
+}
