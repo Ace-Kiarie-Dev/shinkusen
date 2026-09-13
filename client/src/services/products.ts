@@ -17,6 +17,12 @@ export async function fetchAllProductsAdmin(): Promise<Product[]> {
   return data.data ?? [];
 }
 
+export async function fetchProductByIdAdmin(id: string): Promise<Product> {
+  const { data } = await api.get<ApiResponse<Product>>(`/products/admin/${id}`);
+  if (!data.data) throw new Error("Product not found");
+  return data.data;
+}
+
 export async function createProduct(payload: Partial<Product>): Promise<Product> {
   const { data } = await api.post<ApiResponse<Product>>("/products", payload);
   if (!data.data) throw new Error("Failed to create product");

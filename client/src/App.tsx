@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
+import ProtectedRoute from "@/components/admin/ProtectedRoute";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Home from "@/pages/Home";
@@ -9,6 +11,13 @@ import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import OrderSuccess from "@/pages/OrderSuccess";
 import TrackOrder from "@/pages/TrackOrder";
+import Login from "@/pages/admin/Login";
+import Dashboard from "@/pages/admin/Dashboard";
+import Products from "@/pages/admin/Products";
+import ProductForm from "@/pages/admin/ProductForm";
+import Orders from "@/pages/admin/Orders";
+import CustomOrders from "@/pages/admin/CustomOrders";
+import Settings from "@/pages/admin/Settings";
 
 function App() {
   return (
@@ -23,6 +32,24 @@ function App() {
             <Route path="checkout" element={<Checkout />} />
             <Route path="order-success/:receiptNumber" element={<OrderSuccess />} />
             <Route path="track" element={<TrackOrder />} />
+          </Route>
+
+          <Route path="admin/login" element={<Login />} />
+          <Route
+            path="admin"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/:id/edit" element={<ProductForm />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="custom-orders" element={<CustomOrders />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </CartProvider>

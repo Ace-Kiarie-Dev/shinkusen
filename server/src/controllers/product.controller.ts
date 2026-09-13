@@ -65,6 +65,16 @@ export async function getAllProductsAdmin(_req: Request, res: Response): Promise
   res.json({ success: true, data: products });
 }
 
+export async function getProductByIdAdmin(req: Request, res: Response): Promise<void> {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  res.json({ success: true, data: product });
+}
+
 export async function createProduct(req: Request, res: Response): Promise<void> {
   const body = req.body as Partial<{
     title: string;

@@ -3,6 +3,7 @@ import {
   createProduct,
   deleteProduct,
   getAllProductsAdmin,
+  getProductByIdAdmin,
   getProductBySlug,
   getProducts,
   updateProduct,
@@ -14,6 +15,7 @@ const router = Router();
 
 router.get("/", asyncHandler(getProducts));
 router.get("/admin/all", requireAdmin, asyncHandler(getAllProductsAdmin));
+router.get("/admin/:id", requireAdmin, asyncHandler(getProductByIdAdmin));
 router.get("/:slug", asyncHandler(getProductBySlug));
 router.post("/", requireAdmin, asyncHandler(createProduct));
 router.put("/:id", requireAdmin, asyncHandler(updateProduct));
