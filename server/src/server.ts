@@ -8,6 +8,8 @@ dotenv.config();
 import { connectDB } from "./config/db";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
+import productRoutes from "./routes/product.routes";
+import uploadRoutes from "./routes/upload.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -27,6 +29,8 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
