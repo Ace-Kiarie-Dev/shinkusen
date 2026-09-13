@@ -39,6 +39,30 @@ async function sendWhatsApp(to: string, body: string, mediaUrl?: string): Promis
   }
 }
 
+export async function notifyAdminOrderPlaced(order: IOrder): Promise<boolean> {
+  const adminNumber = process.env.WA_ADMIN_NUMBER;
+
+  if (!adminNumber) {
+    console.warn("WA_ADMIN_NUMBER is not set. Skipping order placed alert.");
+    return false;
+  }
+
+  const itemLines = order.items.map((item) => `${item.qty}x ${item.title} (${item.size}, ${item.colour})`);
+
+  const body = [
+    "New order placed on SHINKUSEN",
+    "AWAITING PAYMENT",
+    `Receipt: ${order.receiptNumber}`,
+    `Customer: ${order.customer.name}, ${order.customer.phone}`,
+    `Location: ${order.customer.location}`,
+    "Items:",
+    ...itemLines,
+    `Total: ${formatKes(order.total)}`,
+  ].join("\n");
+
+  return sendWhatsApp(adminNumber, body);
+}
+
 export async function notifyAdminPaidOrder(order: IOrder): Promise<boolean> {
   const adminNumber = process.env.WA_ADMIN_NUMBER;
 
@@ -68,12 +92,13 @@ export async function notifyCustomerOrderConfirmed(order: IOrder): Promise<boole
 
   const body = [
     "Thank you for your order at SHINKUSEN.",
+    "Your payment has been confirmed.",
     `Receipt: ${order.receiptNumber}`,
     `Total paid: ${formatKes(order.total)}`,
     `Track your order here: ${trackLink}`,
   ].join("\n");
 
-  return sendWhatsApp(order.customer.phone, body);
+  return sendWhatsApp(order.customer.phone, body, order.receiptUrl ?? undefined);
 }
 
 export async function notifyAdminLowStock(product: IProduct): Promise<boolean> {

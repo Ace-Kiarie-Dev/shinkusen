@@ -44,6 +44,15 @@ export async function updateOrderStatus(id: string, orderStatus: Order["orderSta
   return data.data;
 }
 
+export async function updateOrderPaymentStatus(
+  id: string,
+  paymentStatus: Order["paymentStatus"],
+): Promise<Order> {
+  const { data } = await api.put<ApiResponse<Order>>(`/orders/${id}`, { paymentStatus });
+  if (!data.data) throw new Error("Failed to update order");
+  return data.data;
+}
+
 export interface CreateCustomOrderPayload {
   customer: {
     name: string;

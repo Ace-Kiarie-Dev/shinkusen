@@ -1,10 +1,13 @@
 import type { Request, Response } from "express";
 import { AppError } from "../middleware/errorHandler";
-import Order, { type IOrderItem, type OrderStatus } from "../models/Order";
+import Order, { type IOrderItem, type OrderStatus, type PaymentStatus } from "../models/Order";
 import Product from "../models/Product";
 import { getOrCreateSettings } from "./settings.controller";
 import { generateOrderReceiptNumber } from "../services/receiptNumber.service";
-import { stkPush } from "../services/mpesa.service";
+import { notifyAdminOrderPlaced } from "../services/whatsapp.service";
+import { markOrderPaid } from "../services/orderFulfillment.service";
+// M-Pesa STK Push is disabled for manual-pay launch. mpesa.service.ts is kept for later.
+// import { stkPush } from "../services/mpesa.service";
 
 interface CreateOrderItemInput {
   productId: string;
@@ -31,6 +34,8 @@ const VALID_ORDER_STATUSES: OrderStatus[] = [
   "delivered",
   "cancelled",
 ];
+
+const VALID_PAYMENT_STATUSES: PaymentStatus[] = ["pending", "paid", "failed"];
 
 export async function createOrder(req: Request, res: Response): Promise<void> {
   const body = req.body as CreateOrderBody;
@@ -93,11 +98,11 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   });
 
   try {
-    const stkResult = await stkPush(customer.phone, total, receiptNumber, "SHINKUSEN Order");
-    order.mpesaCheckoutRequestId = stkResult.CheckoutRequestID;
+    const adminNotified = await notifyAdminOrderPlaced(order);
+    order.whatsappSent = adminNotified;
     await order.save();
   } catch (err) {
-    console.error("STK push failed for order", receiptNumber, err);
+    console.error("Order placed WhatsApp alert failed for order", receiptNumber, err);
   }
 
   res.status(201).json({ success: true, data: order });
@@ -132,16 +137,45 @@ export async function getAllOrdersAdmin(_req: Request, res: Response): Promise<v
 }
 
 export async function updateOrderStatus(req: Request, res: Response): Promise<void> {
-  const { orderStatus } = req.body as { orderStatus?: OrderStatus };
+  const body = req.body as { orderStatus?: OrderStatus; paymentStatus?: PaymentStatus };
 
-  if (!orderStatus || !VALID_ORDER_STATUSES.includes(orderStatus)) {
+  if (!body.orderStatus && !body.paymentStatus) {
+    throw new AppError("orderStatus or paymentStatus is required", 400);
+  }
+
+  if (body.orderStatus && !VALID_ORDER_STATUSES.includes(body.orderStatus)) {
     throw new AppError("Invalid orderStatus", 400);
   }
 
-  const order = await Order.findByIdAndUpdate(req.params.id, { orderStatus }, { new: true });
+  if (body.paymentStatus && !VALID_PAYMENT_STATUSES.includes(body.paymentStatus)) {
+    throw new AppError("Invalid paymentStatus", 400);
+  }
+
+  const order = await Order.findById(req.params.id);
 
   if (!order) {
     throw new AppError("Order not found", 404);
+  }
+
+  const wasPaid = order.paymentStatus === "paid";
+
+  if (body.orderStatus) {
+    order.orderStatus = body.orderStatus;
+  }
+
+  if (body.paymentStatus) {
+    order.paymentStatus = body.paymentStatus;
+  }
+
+  if (body.paymentStatus === "paid" && !wasPaid) {
+    try {
+      await markOrderPaid(order);
+    } catch (err) {
+      console.error(`Failed to fully process paid order ${order.receiptNumber}:`, err);
+      await order.save();
+    }
+  } else {
+    await order.save();
   }
 
   res.json({ success: true, data: order });

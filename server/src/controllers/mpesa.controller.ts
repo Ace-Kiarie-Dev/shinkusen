@@ -1,12 +1,6 @@
 import type { Request, Response } from "express";
 import Order from "../models/Order";
-import Product from "../models/Product";
-import { generateReceipt } from "../services/receipt.service";
-import {
-  notifyAdminLowStock,
-  notifyAdminPaidOrder,
-  notifyCustomerOrderConfirmed,
-} from "../services/whatsapp.service";
+import { markOrderPaid } from "../services/orderFulfillment.service";
 
 interface StkCallbackItem {
   Name: string;
@@ -32,6 +26,8 @@ function extractMetadataValue(items: StkCallbackItem[] | undefined, name: string
   return item?.Value !== undefined ? String(item.Value) : undefined;
 }
 
+// Dormant while STK Push is disabled for the manual-pay launch. Kept working
+// so re-enabling mpesa.service.ts later does not require rebuilding this flow.
 export async function mpesaCallback(req: Request, res: Response): Promise<void> {
   const body = req.body as StkCallbackBody;
   const callback = body?.Body?.stkCallback;
@@ -49,38 +45,23 @@ export async function mpesaCallback(req: Request, res: Response): Promise<void> 
     return;
   }
 
+  if (order.paymentStatus === "paid") {
+    res.status(200).json({ success: true });
+    return;
+  }
+
   if (callback.ResultCode === 0) {
     const mpesaRef = extractMetadataValue(callback.CallbackMetadata?.Item, "MpesaReceiptNumber");
 
     order.paymentStatus = "paid";
     order.mpesaRef = mpesaRef ?? null;
-    order.orderStatus = "confirmed";
-    await order.save();
-
-    for (const item of order.items) {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        item.productId,
-        { $inc: { stock: -item.qty } },
-        { new: true },
-      );
-
-      if (updatedProduct && updatedProduct.stock <= updatedProduct.lowStockThreshold) {
-        await notifyAdminLowStock(updatedProduct);
-      }
-    }
 
     try {
-      const receipt = await generateReceipt(order);
-      order.receiptUrl = receipt.url;
-      await order.save();
+      await markOrderPaid(order);
     } catch (err) {
-      console.error(`Receipt generation failed for order ${order.receiptNumber}:`, err);
+      console.error(`Failed to fully process paid order ${order.receiptNumber}:`, err);
+      await order.save();
     }
-
-    const adminNotified = await notifyAdminPaidOrder(order);
-    const customerNotified = await notifyCustomerOrderConfirmed(order);
-    order.whatsappSent = adminNotified && customerNotified;
-    await order.save();
   } else {
     order.paymentStatus = "failed";
     await order.save();
