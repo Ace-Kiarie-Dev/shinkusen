@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/product/ProductCard";
 import HeroParticles from "@/components/ui/HeroParticles";
+import heroImage from "@/assets/hero-image-main.webp";
 import { fetchProducts } from "@/services/products";
 import type { Product, ProductSeries } from "@/types";
 
@@ -63,7 +64,7 @@ export default function Home() {
 
         {/* z-3: mannequin, in front of both words */}
         <img
-          src="/src/assets/hero-image-main.png"
+          src={heroImage}
           alt="SHINKUSEN mannequin apparel"
           className="absolute left-1/2 top-1/2 z-30 w-[68vw] object-contain md:w-[42vw] md:max-w-[550px] md:min-w-[280px]"
           style={{
